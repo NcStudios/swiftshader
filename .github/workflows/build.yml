@@ -27,6 +27,7 @@ jobs:
             env: "CXX=$(brew --prefix llvm@15)"
             options: "-DCMAKE_BUILD_TYPE=Release"
             artifactUploadName: "swiftshader-macOS-x64" # could probably modify cmake to build universal
+            artifactLocation: "build_out/Darwin/"
 
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
