@@ -24,7 +24,7 @@ jobs:
           - name: Mac
             os: macos-13
             generator: "Unix Makefiles"
-            env: "CXX=$(brew --prefix llvm@15)"
+            env: "CXX=$(brew --prefix llvm@15)/bin/clang++"
             options: "-DCMAKE_BUILD_TYPE=Release"
             artifactUploadName: "swiftshader-macOS-x64" # could probably modify cmake to build universal
             artifactLocation: "build_out/Darwin/"
