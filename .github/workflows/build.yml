@@ -22,11 +22,11 @@ jobs:
             artifactUploadName: "swiftshader-ubuntu22.04-x64"
             artifactLocation: "build_out/Linux/"
           - name: Mac
-            os: macos-13-xlarge
+            os: macos-13
             generator: "Unix Makefiles"
             env: "CXX=$(brew --prefix llvm@15)"
             options: "-DCMAKE_BUILD_TYPE=Release"
-            artifactUploadName: "swiftshader-macOS-arm64"
+            artifactUploadName: "swiftshader-macOS-x64" # could probably modify cmake to build universal
 
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
