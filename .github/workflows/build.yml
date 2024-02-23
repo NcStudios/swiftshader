@@ -5,23 +5,51 @@ on:
 
 jobs:
   Build:
-    runs-on: windows-2022
+    strategy:
+      matrix:
+        include:
+          - name: Windows
+            os: windows-2022
+            generator: "Visual Studio 17 2022"
+            options: -Thost=x64
+            artifactUploadName: "swiftshader-windows-x64"
+            artifactLocation: "build_out/Windows/"
+          - name: Linux
+            os: ubuntu-22.04
+            generator: "Unix Makefiles"
+            env: "CXX=/usr/bin/g++-13"
+            options: "-DCMAKE_BUILD_TYPE=Release"
+            artifactUploadName: "swiftshader-ubuntu22.04-x64"
+            artifactLocation: "build_out/Linux/"
+          - name: Mac
+            os: macos-13-xlarge
+            generator: "Unix Makefiles"
+            env: "CXX=$(brew --prefix llvm@15)"
+            options: "-DCMAKE_BUILD_TYPE=Release"
+            artifactUploadName: "swiftshader-macOS-arm64"
+
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+
     steps:
       - name: Checkout Branch
         uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
 
       - name: Setup MSVC
+        if: matrix.name == 'Windows'
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Configure
-        run: cmake -G "Visual Studio 17 2022" -S ./ -B build
+        run: ${{ matrix.env }} cmake -G "${{ matrix.generator }}" -S ./ -B build_out ${{ matrix.options }}
 
       - name: Build
-        run: cmake --build build --target vk_swiftshader --config Release
+        run: cmake --build build_out --target vk_swiftshader --config Release
 
       - name: Upload Artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: swiftshader-windows-x64
-          path: build/Release/
+          name: ${{ matrix.artifactUploadName }}
+          path: ${{ matrix.artifactLocation }}
