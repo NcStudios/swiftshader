@@ -21,12 +21,6 @@ jobs:
             options: "-DCMAKE_BUILD_TYPE=Release"
             artifactUploadName: "swiftshader-ubuntu22.04-x64"
             artifactLocation: "build_out/Linux/"
-          - name: Mac
-            os: macos-13
-            generator: "Xcode"
-            options: "-DCMAKE_BUILD_TYPE=Release"
-            artifactUploadName: "swiftshader-macOS-x64"
-            artifactLocation: "build_out/Darwin/"
 
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
