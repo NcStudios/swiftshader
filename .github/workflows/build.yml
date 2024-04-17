@@ -14,6 +14,13 @@ jobs:
             options: -Thost=x64
             artifactUploadName: "swiftshader-windows-x64"
             artifactLocation: "build_out/Windows/"
+          - name: Linux
+            os: ubuntu-22.04
+            generator: "Unix Makefiles"
+            env: "CXX=/usr/bin/g++-13"
+            options: "-DCMAKE_BUILD_TYPE=Release"
+            artifactUploadName: "swiftshader-ubuntu22.04-x64"
+            artifactLocation: "build_out/Linux/"
 
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
