@@ -105,9 +105,6 @@ struct Sampler
 	VkSamplerYcbcrModelConversion ycbcrModel;
 	bool studioSwing;    // Narrow range
 	bool swappedChroma;  // Cb/Cr components in reverse order
-	FilterType chromaFilter;
-	VkChromaLocation chromaXOffset;
-	VkChromaLocation chromaYOffset;
 
 	float mipLodBias = 0.0f;
 	float maxAnisotropy = 0.0f;

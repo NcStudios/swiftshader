@@ -56,7 +56,7 @@ enum class Level
 };
 
 #ifdef __ANDROID__
-[[maybe_unused]] void logv_android(Level level, const char *msg)
+void logv_android(Level level, const char *msg)
 {
 	switch(level)
 	{
@@ -80,7 +80,7 @@ enum class Level
 	}
 }
 #else
-[[maybe_unused]] void logv_std(Level level, const char *msg)
+void logv_std(Level level, const char *msg)
 {
 	switch(level)
 	{
@@ -127,8 +127,8 @@ void logv(Level level, const char *format, va_list args)
 			vfprintf(file, format, args);
 			fclose(file);
 		}
-#endif  // SWIFTSHADER_DISABLE_TRACE
 	}
+#endif  // SWIFTSHADER_DISABLE_TRACE
 }
 
 }  // anonymous namespace

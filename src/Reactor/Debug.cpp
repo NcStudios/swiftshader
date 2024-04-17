@@ -106,7 +106,7 @@ enum class Level
 };
 
 #ifdef __ANDROID__
-[[maybe_unused]] void logv_android(Level level, const char *msg)
+void logv_android(Level level, const char *msg)
 {
 	switch(level)
 	{
@@ -128,7 +128,7 @@ enum class Level
 	}
 }
 #else
-[[maybe_unused]] void logv_std(Level level, const char *msg)
+void logv_std(Level level, const char *msg)
 {
 	switch(level)
 	{
