@@ -21,12 +21,6 @@ jobs:
             options: "-DCMAKE_BUILD_TYPE=Release"
             artifactUploadName: "swiftshader-ubuntu22.04-x64"
             artifactLocation: "build_out/Linux/"
-          - name: Mac
-            os: macos-13
-            generator: "Xcode"
-            options: "-DCMAKE_BUILD_TYPE=Release"
-            artifactUploadName: "swiftshader-macOS-x64"
-            artifactLocation: "build_out/Darwin/"
 
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
@@ -42,7 +36,7 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Configure
-        run: ${{ matrix.env }} cmake -G "${{ matrix.generator }}" -S ./ -B build_out ${{ matrix.options }} -DSWIFTSHADER_ENABLE_VULKAN_DEBUGGER=1
+        run: ${{ matrix.env }} cmake -G "${{ matrix.generator }}" -S ./ -B build_out ${{ matrix.options }}
 
       - name: Build
         run: cmake --build build_out --target vk_swiftshader --config Release --parallel 4
