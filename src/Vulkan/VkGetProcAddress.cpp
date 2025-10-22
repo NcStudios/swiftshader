@@ -528,6 +528,13 @@ static const std::vector<std::pair<const char *, std::unordered_map<std::string,
 	        MAKE_VULKAN_DEVICE_ENTRY(vkCmdBeginRenderingKHR),
 	        MAKE_VULKAN_DEVICE_ENTRY(vkCmdEndRenderingKHR),
 	    } },
+	// VK_KHR_dynamic_rendering_local_read
+	{
+	    VK_KHR_DYNAMIC_RENDERING_LOCAL_READ_EXTENSION_NAME,
+	    {
+	        MAKE_VULKAN_DEVICE_ENTRY(vkCmdSetRenderingAttachmentLocationsKHR),
+	        MAKE_VULKAN_DEVICE_ENTRY(vkCmdSetRenderingInputAttachmentIndicesKHR),
+	    } },
 	// VK_EXT_extended_dynamic_state
 	{
 	    VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME,
@@ -544,6 +551,16 @@ static const std::vector<std::pair<const char *, std::unordered_map<std::string,
 	        MAKE_VULKAN_DEVICE_ENTRY(vkCmdSetStencilOpEXT),
 	        MAKE_VULKAN_DEVICE_ENTRY(vkCmdSetStencilTestEnableEXT),
 	        MAKE_VULKAN_DEVICE_ENTRY(vkCmdSetViewportWithCountEXT),
+	    } },
+	// VK_EXT_extended_dynamic_state2
+	{
+	    VK_EXT_EXTENDED_DYNAMIC_STATE_2_EXTENSION_NAME,
+	    {
+	        MAKE_VULKAN_DEVICE_ENTRY(vkCmdSetRasterizerDiscardEnableEXT),
+	        MAKE_VULKAN_DEVICE_ENTRY(vkCmdSetDepthBiasEnableEXT),
+	        MAKE_VULKAN_DEVICE_ENTRY(vkCmdSetPrimitiveRestartEnableEXT),
+	        MAKE_VULKAN_DEVICE_ENTRY(vkCmdSetLogicOpEXT),
+	        MAKE_VULKAN_DEVICE_ENTRY(vkCmdSetPatchControlPointsEXT),
 	    } },
 	// VK_EXT_vertex_input_dynamic_state
 	{
@@ -593,6 +610,12 @@ static const std::vector<std::pair<const char *, std::unordered_map<std::string,
 	        MAKE_VULKAN_DEVICE_ENTRY(vkQueuePresentKHR),
 	        MAKE_VULKAN_DEVICE_ENTRY(vkGetDeviceGroupPresentCapabilitiesKHR),
 	        MAKE_VULKAN_DEVICE_ENTRY(vkGetDeviceGroupSurfacePresentModesKHR),
+	    } },
+	// VK_KHR_swapchain_maintenance1
+	{
+	    VK_KHR_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME,
+	    {
+	        MAKE_VULKAN_DEVICE_ENTRY(vkReleaseSwapchainImagesKHR),
 	    } },
 	// VK_EXT_swapchain_maintenance1
 	{

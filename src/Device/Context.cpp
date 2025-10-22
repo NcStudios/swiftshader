@@ -236,7 +236,8 @@ namespace vk {
 
 uint32_t IndexBuffer::bytesPerIndex() const
 {
-	return indexType == VK_INDEX_TYPE_UINT16 ? 2u : 4u;
+	return indexType == VK_INDEX_TYPE_UINT8_EXT ? 1u : indexType == VK_INDEX_TYPE_UINT16 ? 2u
+	                                                                                     : 4u;
 }
 
 void IndexBuffer::setIndexBufferBinding(const VertexInputBinding &indexBufferBinding, VkIndexType type)
@@ -266,6 +267,9 @@ void IndexBuffer::getIndexBuffers(VkPrimitiveTopology topology, uint32_t count, 
 		{
 			switch(indexType)
 			{
+			case VK_INDEX_TYPE_UINT8_EXT:
+				ProcessPrimitiveRestart(static_cast<uint8_t *>(indexBuffer), topology, count, indexBuffers);
+				break;
 			case VK_INDEX_TYPE_UINT16:
 				ProcessPrimitiveRestart(static_cast<uint16_t *>(indexBuffer), topology, count, indexBuffers);
 				break;
@@ -287,13 +291,13 @@ void IndexBuffer::getIndexBuffers(VkPrimitiveTopology topology, uint32_t count, 
 	}
 }
 
-VkFormat Attachments::colorFormat(int index) const
+VkFormat Attachments::colorFormat(int location) const
 {
-	ASSERT((index >= 0) && (index < sw::MAX_COLOR_BUFFERS));
+	ASSERT((location >= 0) && (location < sw::MAX_COLOR_BUFFERS));
 
-	if(colorBuffer[index])
+	if(colorBuffer[location])
 	{
-		return colorBuffer[index]->getFormat();
+		return colorBuffer[location]->getFormat();
 	}
 	else
 	{
@@ -306,6 +310,22 @@ VkFormat Attachments::depthFormat() const
 	if(depthBuffer)
 	{
 		return depthBuffer->getFormat();
+	}
+	else
+	{
+		return VK_FORMAT_UNDEFINED;
+	}
+}
+
+VkFormat Attachments::depthStencilFormat() const
+{
+	if(depthBuffer)
+	{
+		return depthBuffer->getFormat();
+	}
+	else if(stencilBuffer)
+	{
+		return stencilBuffer->getFormat();
 	}
 	else
 	{
@@ -773,10 +793,7 @@ void PreRasterizationState::applyState(const DynamicState &dynamicState)
 
 	if(dynamicStateFlags.dynamicViewportWithCount && dynamicState.viewportCount > 0)
 	{
-		viewport.width = static_cast<float>(dynamicState.viewports[0].extent.width);
-		viewport.height = static_cast<float>(dynamicState.viewports[0].extent.height);
-		viewport.x = static_cast<float>(dynamicState.viewports[0].offset.x);
-		viewport.y = static_cast<float>(dynamicState.viewports[0].offset.y);
+		viewport = dynamicState.viewports[0];
 	}
 
 	if(dynamicStateFlags.dynamicScissorWithCount && dynamicState.scissorCount > 0)
@@ -1070,17 +1087,24 @@ void FragmentOutputInterfaceState::setColorBlendState(const VkPipelineColorBlend
 	}
 }
 
-BlendState FragmentOutputInterfaceState::getBlendState(int index, const Attachments &attachments, bool fragmentContainsKill) const
+BlendState FragmentOutputInterfaceState::getBlendState(int location, const Attachments &attachments, bool fragmentContainsKill) const
 {
+	ASSERT((location >= 0) && (location < sw::MAX_COLOR_BUFFERS));
+	const uint32_t index = attachments.locationToIndex[location];
+	if(index == VK_ATTACHMENT_UNUSED)
+	{
+		return {};
+	}
+
 	ASSERT((index >= 0) && (index < sw::MAX_COLOR_BUFFERS));
 	auto &state = blendState[index];
 
 	BlendState activeBlendState = {};
-	activeBlendState.alphaBlendEnable = alphaBlendActive(index, attachments, fragmentContainsKill);
+	activeBlendState.alphaBlendEnable = alphaBlendActive(location, attachments, fragmentContainsKill);
 
 	if(activeBlendState.alphaBlendEnable)
 	{
-		vk::Format format = attachments.colorBuffer[index]->getFormat(VK_IMAGE_ASPECT_COLOR_BIT);
+		vk::Format format = attachments.colorBuffer[location]->getFormat(VK_IMAGE_ASPECT_COLOR_BIT);
 
 		activeBlendState.sourceBlendFactor = blendFactor(state.blendOperation, state.sourceBlendFactor);
 		activeBlendState.destBlendFactor = blendFactor(state.blendOperation, state.destBlendFactor);
@@ -1093,12 +1117,19 @@ BlendState FragmentOutputInterfaceState::getBlendState(int index, const Attachme
 	return activeBlendState;
 }
 
-bool FragmentOutputInterfaceState::alphaBlendActive(int index, const Attachments &attachments, bool fragmentContainsKill) const
+bool FragmentOutputInterfaceState::alphaBlendActive(int location, const Attachments &attachments, bool fragmentContainsKill) const
 {
+	ASSERT((location >= 0) && (location < sw::MAX_COLOR_BUFFERS));
+	const uint32_t index = attachments.locationToIndex[location];
+	if(index == VK_ATTACHMENT_UNUSED)
+	{
+		return false;
+	}
+
 	ASSERT((index >= 0) && (index < sw::MAX_COLOR_BUFFERS));
 	auto &state = blendState[index];
 
-	if(!attachments.colorBuffer[index] || !blendState[index].alphaBlendEnable)
+	if(!attachments.colorBuffer[location] || !blendState[index].alphaBlendEnable)
 	{
 		return false;
 	}
@@ -1108,7 +1139,7 @@ bool FragmentOutputInterfaceState::alphaBlendActive(int index, const Attachments
 		return false;
 	}
 
-	vk::Format format = attachments.colorBuffer[index]->getFormat(VK_IMAGE_ASPECT_COLOR_BIT);
+	vk::Format format = attachments.colorBuffer[location]->getFormat(VK_IMAGE_ASPECT_COLOR_BIT);
 	bool colorBlend = blendOperation(state.blendOperation, state.sourceBlendFactor, state.destBlendFactor, format) != VK_BLEND_OP_SRC_EXT;
 	bool alphaBlend = blendOperation(state.blendOperationAlpha, state.sourceBlendFactorAlpha, state.destBlendFactorAlpha, format) != VK_BLEND_OP_SRC_EXT;
 
@@ -1251,17 +1282,24 @@ bool FragmentOutputInterfaceState::colorWriteActive(const Attachments &attachmen
 	return false;
 }
 
-int FragmentOutputInterfaceState::colorWriteActive(int index, const Attachments &attachments) const
+int FragmentOutputInterfaceState::colorWriteActive(int location, const Attachments &attachments) const
 {
-	ASSERT((index >= 0) && (index < sw::MAX_COLOR_BUFFERS));
-	auto &state = blendState[index];
-
-	if(!attachments.colorBuffer[index] || attachments.colorBuffer[index]->getFormat() == VK_FORMAT_UNDEFINED)
+	ASSERT((location >= 0) && (location < sw::MAX_COLOR_BUFFERS));
+	const uint32_t index = attachments.locationToIndex[location];
+	if(index == VK_ATTACHMENT_UNUSED)
 	{
 		return 0;
 	}
 
-	vk::Format format = attachments.colorBuffer[index]->getFormat(VK_IMAGE_ASPECT_COLOR_BIT);
+	ASSERT((index >= 0) && (index < sw::MAX_COLOR_BUFFERS));
+	auto &state = blendState[index];
+
+	if(!attachments.colorBuffer[location] || attachments.colorBuffer[location]->getFormat() == VK_FORMAT_UNDEFINED)
+	{
+		return 0;
+	}
+
+	vk::Format format = attachments.colorBuffer[location]->getFormat(VK_IMAGE_ASPECT_COLOR_BIT);
 
 	if(blendOperation(state.blendOperation, state.sourceBlendFactor, state.destBlendFactor, format) == VK_BLEND_OP_DST_EXT &&
 	   blendOperation(state.blendOperationAlpha, state.sourceBlendFactorAlpha, state.destBlendFactorAlpha, format) == VK_BLEND_OP_DST_EXT)
