@@ -22,7 +22,7 @@ jobs:
             artifactUploadName: "swiftshader-ubuntu24.04-x64"
             artifactLocation: "build_out/Linux/"
           - name: MacOS
-            os: macos-15-large
+            os: macos-15-intel
             generator: "Unix Makefiles"
             env: "CXX=/usr/bin/clang++"
             options: "-DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=x86_64"
