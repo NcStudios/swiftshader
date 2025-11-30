@@ -27,7 +27,7 @@ jobs:
             env: "CXX=/usr/bin/clang++"
             options: "-DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=x86_64"
             artifactUploadName: "swiftshader-macos-15-x86_64"
-            artifactLocation: "build_out/MacOS/"
+            artifactLocation: "build_out/Darwin/"
 
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
