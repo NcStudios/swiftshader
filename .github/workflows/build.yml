@@ -9,7 +9,7 @@ jobs:
       matrix:
         include:
           - name: Windows
-            os: windows-2022
+            os: windows-2025
             generator: "Visual Studio 17 2022"
             options: -Thost=x64
             artifactUploadName: "swiftshader-windows-x64"
@@ -21,6 +21,13 @@ jobs:
             options: "-DCMAKE_BUILD_TYPE=Release"
             artifactUploadName: "swiftshader-ubuntu24.04-x64"
             artifactLocation: "build_out/Linux/"
+          - name: MacOS
+            os: macos-15-intel
+            generator: "Unix Makefiles"
+            env: "CXX=/usr/bin/clang++"
+            options: "-DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=x86_64"
+            artifactUploadName: "swiftshader-macos-15-x86_64"
+            artifactLocation: "build_out/MacOS/"
 
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
