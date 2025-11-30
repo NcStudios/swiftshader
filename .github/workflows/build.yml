@@ -21,12 +21,19 @@ jobs:
             options: "-DCMAKE_BUILD_TYPE=Release"
             artifactUploadName: "swiftshader-ubuntu24.04-x64"
             artifactLocation: "build_out/Linux/"
-          - name: MacOS
+          - name: MacOS-Intel
             os: macos-15-intel
             generator: "Unix Makefiles"
             env: "CXX=/usr/bin/clang++"
             options: "-DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=x86_64"
             artifactUploadName: "swiftshader-macos-15-x86_64"
+            artifactLocation: "build_out/Darwin/"
+          - name: MacOS-ARM
+            os: macos-15
+            generator: "Unix Makefiles"
+            env: "CXX=/usr/bin/clang++"
+            options: "-DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64"
+            artifactUploadName: "swiftshader-macos-15-arm64"
             artifactLocation: "build_out/Darwin/"
 
     name: ${{ matrix.name }}
